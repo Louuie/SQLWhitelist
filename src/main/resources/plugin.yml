@@ -1,0 +1,4 @@
+name: WebsiteWhitelist
+version: ${project.version}
+main: louie.websitewhitelist.WebsiteWhitelist
+api-version: 1.16
