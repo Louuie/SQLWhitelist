@@ -9,14 +9,34 @@ import java.sql.*;
 
 public class MySQL {
     Connection connection;
-    final String username = Config.get().getString("username");
-    final String password = Config.get().getString("password");
-    final String ip = Config.get().getString("url");
-    final String table = Config.get().getString("table");
-    final String columnName = Config.get().getString("column-name");
-    final String url = "jdbc:mysql://" + ip;
+    private String username;
+    private String password;
+    private String ip;
+    private String table;
+    private String columnName;
+    private String url;
+    private OfflinePlayer p;
 
-    public void establishWhitelist(){
+    public String getUsername(){
+       return this.username = Config.get().getString("username");
+    }
+    public String getPassword(){
+        return this.password = Config.get().getString("password");
+    }
+    public String getIp(){
+        return this.ip = Config.get().getString("ip");
+    }
+    public String getTable(){
+        return this.table = Config.get().getString("table");
+
+    }
+    public String getColumnName(){
+        return this.columnName = Config.get().getString("column-name");
+    }
+    public String getUrl(){
+        return this.url = "jdbc:mysql://" + ip;
+    }
+    public void establishConnection(){
         // First we establish a connection with the SQL Server.
         try{
             java.security.Security.setProperty("jdk.tls.disabledAlgorithms","");
@@ -27,6 +47,9 @@ public class MySQL {
             Bukkit.getServer().getLogger().info("Connection Failed");
             e.printStackTrace();
         }
+        this.getPlayer();
+    }
+    public OfflinePlayer getPlayer(){
 
         // Reloads the database
         Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin) this, () -> {
@@ -34,21 +57,24 @@ public class MySQL {
             try {
                 PreparedStatement stmt = connection.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery();
-                while(rs.next()){
+                while (rs.next()) {
                     //UUID uuid = (UUID) rs.getObject("uuid");
                     String name = rs.getString(columnName);
-                    OfflinePlayer p = Bukkit.getOfflinePlayer(name);
-                    if(!(p.isWhitelisted())){
-                        stmt.getConnection();
-                        p.setWhitelisted(true);
-                        Bukkit.getServer().getLogger().info("adding " + name + " to the whitelist");
-                    } else {
-                        Bukkit.getServer().getLogger().info(name + " is already whitelisted, ignoring");
-                    }
+                    this.p = Bukkit.getOfflinePlayer(name);
+                    this.setWhitelist();
                 }
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }, 1,20 * 60 * Config.get().getInt("refresh-time"));
+        return p;
+    }
+    public void setWhitelist(){
+        if(!getPlayer().isWhitelisted()){
+            getPlayer().setWhitelisted(true);
+            Bukkit.getLogger().info("adding " + getPlayer().getName() + " to the whitelist");
+        } else {
+            Bukkit.getLogger().info(getPlayer().getName() + " is already whitelisted ignoring!");
+        }
     }
 }
