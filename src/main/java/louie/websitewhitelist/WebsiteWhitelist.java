@@ -2,21 +2,26 @@ package louie.websitewhitelist;
 
 import me.louie.websitewhitelist.Config;
 import me.louie.websitewhitelist.ConfigSetter;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.sql.*;
 
 public final class WebsiteWhitelist extends JavaPlugin {
-    MySQL whitelist = new MySQL();
-    ConfigSetter cs = new ConfigSetter();
     Connection connection;
+
+    private MySQL sql;
+    public MySQL getMySQL(){
+        return sql;
+    }
+
 
     @Override
     public void onEnable() {
         Config.setup();
         Config.save();
         // Plugin startup logic
-        cs.configSetup();
-        whitelist.establishConnection();
+        sql = new MySQL(this);
+        sql.establishConnection();
     }
 
     @Override
